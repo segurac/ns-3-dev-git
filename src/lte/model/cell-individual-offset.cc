@@ -13,3 +13,4 @@ std::vector<double> CellIndividualOffset::getOffsetList()
 {
 		return OffsetList;
 }
+
