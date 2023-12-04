@@ -2094,8 +2094,8 @@ LteUeRrc::MeasurementReportTriggering (uint8_t measId)
 
         std::vector<double> cioList = CellIndividualOffset::getOffsetList(); // Edit this out to remove CIO capabilities
         //cioList ={6.558788, 7.833873, -8.363283, 7.056366, 7.500414, -7.847822, -6.923728, -8.015309, -8.247333, -8.169519, -8.169519};
-        int const Cell_num=3;   //put this =6 if we return to old setting
-       /* int HO_possible [Cell_num][Cell_num] =
+        int const Cell_num=6;
+        int HO_possible [Cell_num][Cell_num] =
         {
           {0,1,0,1,0,1},
           {1,0,1,1,1,1},
@@ -2103,23 +2103,7 @@ LteUeRrc::MeasurementReportTriggering (uint8_t measId)
           {1,1,0,0,1,0},
           {0,1,1,1,0,1},
           {1,1,1,0,1,0}
-        };*/
-		
-		
-	    int HO_possible [Cell_num][Cell_num] =
-        {
-          {0,1,1},
-          {1,0,1},
-          {1,1,0,},
         };
-		
-		/*int HO_possible [Cell_num][Cell_num] =
-        {
-          {0,1},
-          {1,0},
-        };*/
-		
-		
         int index=0;
         double array [Cell_num][Cell_num] ={0.0};
         for (int i=0; i<Cell_num;i++)
