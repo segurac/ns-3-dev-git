@@ -889,6 +889,22 @@ public:
    *
    * Can only be called before the start of simulation.
    */
+   
+   uint16_t GetUeCount (uint16_t cellId);
+
+  /**
+   * \brief Add a new UE measurement reporting configuration
+   * \param config the new reporting configuration
+   * \return the measurement ID (measId) referring to the newly added
+   *         reporting configuration
+   *
+   * Assuming intra-frequency environment, the new measurement reporting
+   * configuration will be automatically associated to the only measurement
+   * object (i.e., a new measurement identity will be automatically created).
+   *
+   * Can only be called before the start of simulation.
+   
+   **/
   uint8_t AddUeMeasReportConfig (LteRrcSap::ReportConfigEutra config);
 
   /**
@@ -1669,6 +1685,7 @@ private:
    * handover procedure. Exporting IMSI, cell ID, and RNTI.
    */
   TracedCallback<uint64_t, uint16_t, uint16_t> m_handoverEndOkTrace;
+  TracedCallback< uint16_t, uint16_t, uint16_t> m_NumberofUesChanged;
   /**
    * The `RecvMeasurementReport` trace source. Fired when measurement report is
    * received. Exporting IMSI, cell ID, and RNTI.

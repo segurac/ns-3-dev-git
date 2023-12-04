@@ -133,8 +133,7 @@ def build(bld):
         'model/component-carrier.cc',
         'helper/cc-helper.cc',
         'model/component-carrier-ue.cc',
-        'model/component-carrier-enb.cc',
-        'model/cell-individual-offset.cc'
+        'model/component-carrier-enb.cc'
         ]
 
     module_test = bld.create_ns3_module_test_library('lte')
@@ -197,7 +196,6 @@ def build(bld):
         'test/lte-test-ipv6-routing.cc',
         'test/lte-test-carrier-aggregation-configuration.cc',
         'test/lte-test-radio-link-failure.cc',
-        'model/cell-individual-offset.cc'
         ]
 
     headers = bld(features='ns3header')
@@ -329,8 +327,7 @@ def build(bld):
         'helper/cc-helper.h',
         'model/component-carrier.h',
         'model/component-carrier-ue.h',
-        'model/component-carrier-enb.h',
-        'model/cell-individual-offset.h'
+        'model/component-carrier-enb.h'
         ]
 
     if (bld.env['ENABLE_EMU']):

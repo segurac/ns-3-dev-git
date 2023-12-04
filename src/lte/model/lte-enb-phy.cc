@@ -241,6 +241,10 @@ LteEnbPhy::GetTypeId (void)
                    PointerValue (),
                    MakePointerAccessor (&LteEnbPhy::GetUlSpectrumPhy),
                    MakePointerChecker <LteSpectrumPhy> ())
+ 	.AddTraceSource ("ReportCqiValues",
+                 "DL transmission PHY layer CQI statistics.",
+                 MakeTraceSourceAccessor (&LteEnbPhy::m_reportCqiTrace),
+                 "ns3::LteEnbPhy::ReportCqiTracedCallback")
   ;
   return tid;
 }
@@ -546,6 +550,11 @@ LteEnbPhy::ReceiveLteControlMessageList (std::list<Ptr<LteControlMessage> > msgL
           {
             Ptr<DlCqiLteControlMessage> dlcqiMsg = DynamicCast<DlCqiLteControlMessage> (*it);
             CqiListElement_s dlcqi = dlcqiMsg->GetDlCqi ();
+			if (dlcqi.m_cqiType == CqiListElement_s::P10 )
+			{
+			m_reportCqiTrace(m_cellId,dlcqi.m_rnti,dlcqi.m_wbCqi);
+			NS_LOG_DEBUG(" m_cellId "<<m_cellId<<" m_rnti "<<dlcqi.m_rnti<<" CQI "<<(uint16_t) dlcqi.m_wbCqi.at(0));
+			}
             // check whether the UE is connected
             if (m_ueAttached.find (dlcqi.m_rnti) != m_ueAttached.end ())
               {
@@ -752,6 +761,7 @@ LteEnbPhy::StartSubFrame (void)
 
         }
     }
+	
 
   SendControlChannels (ctrlMsg);
 

@@ -59,11 +59,17 @@ typedef std::vector < uint8_t > UlHarqProcessesStatus_t;
 class RrFfMacScheduler : public FfMacScheduler
 {
 public:
+
+std::map <uint16_t,uint8_t> cqi_list;                             //global map for rnti-cqi pairs
+
+
   /**
    * \brief Constructor
    *
    * Creates the MAC Scheduler interface implementation
    */
+   
+   
   RrFfMacScheduler ();
 
   /**

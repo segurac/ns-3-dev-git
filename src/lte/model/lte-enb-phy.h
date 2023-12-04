@@ -318,6 +318,8 @@ public:
    */
   typedef void (* ReportInterferenceTracedCallback)
     (uint16_t cellId, Ptr<SpectrumValue> spectrumValue);
+  typedef void (* ReportCqiTracedCallback)
+    (uint16_t cellId, uint16_t rnti, std::vector <uint8_t> cqi);
 
 private:
 
@@ -516,6 +518,7 @@ private:
    * PhyTransmissionStatParameters.
    */
   TracedCallback<PhyTransmissionStatParameters> m_dlPhyTransmission;
+  TracedCallback<uint16_t, uint16_t, std::vector <uint8_t> > m_reportCqiTrace;
 
 }; // end of `class LteEnbPhy`
 

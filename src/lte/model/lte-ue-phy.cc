@@ -226,12 +226,13 @@ LteUePhy::GetTypeId (void)
                    MakeDoubleChecker<double> ())
     .AddAttribute ("TxMode1Gain",
                    "Transmission mode 1 gain in dB",
-                   DoubleValue (0.0),
+                   //DoubleValue (-12.0),
+				   DoubleValue (0.0),
                    MakeDoubleAccessor (&LteUePhy::SetTxMode1Gain),
                    MakeDoubleChecker<double> ())
     .AddAttribute ("TxMode2Gain",
                    "Transmission mode 2 gain in dB",
-                   DoubleValue (4.2),
+                   DoubleValue (1.2),
                    MakeDoubleAccessor (&LteUePhy::SetTxMode2Gain),
                    MakeDoubleChecker<double> ())
     .AddAttribute ("TxMode3Gain",

@@ -38,6 +38,7 @@
 #include <ns3/lte-rlc-am.h>
 #include <ns3/lte-pdcp.h>
 #include <ns3/lte-radio-bearer-info.h>
+#include "cell-individual-offset.h" // edit this out to remove CIO capabilities
 
 #include <cmath>
 
@@ -2091,6 +2092,72 @@ LteUeRrc::MeasurementReportTriggering (uint8_t measId)
         // Hys, the hysteresis parameter for this event.
         double hys = EutranMeasurementMapping::IeValue2ActualHysteresis (reportConfigEutra.hysteresis);
 
+        std::vector<double> cioList = CellIndividualOffset::getOffsetList(); // Edit this out to remove CIO capabilities
+        //cioList ={6.558788, 7.833873, -8.363283, 7.056366, 7.500414, -7.847822, -6.923728, -8.015309, -8.247333, -8.169519, -8.169519};
+        int const Cell_num=3;   //put this =6 if we return to old setting
+       /* int HO_possible [Cell_num][Cell_num] =
+        {
+          {0,1,0,1,0,1},
+          {1,0,1,1,1,1},
+          {0,1,0,0,1,1},
+          {1,1,0,0,1,0},
+          {0,1,1,1,0,1},
+          {1,1,1,0,1,0}
+        };*/
+		
+		
+	    int HO_possible [Cell_num][Cell_num] =
+        {
+          {0,1,1},
+          {1,0,1},
+          {1,1,0,},
+        };
+		
+		/*int HO_possible [Cell_num][Cell_num] =
+        {
+          {0,1},
+          {1,0},
+        };*/
+		
+		
+        int index=0;
+        double array [Cell_num][Cell_num] ={0.0};
+        for (int i=0; i<Cell_num;i++)
+        {
+            for (int j=0; j<i;j++)
+            {
+            	if (HO_possible[i][j]==1)
+            	{
+            		array[i][j]=-1*cioList[index];
+            		array[j][i]=cioList[index];
+
+            		index++;
+            	}
+            }
+        }
+        NS_LOG_LOGIC("index "<< index);
+        ////////////////////////////////////
+        for (int j = 0; j < Cell_num*Cell_num; ++j)
+        {
+        	NS_LOG_LOGIC("cioList ["<<j<<"]"<< cioList[j]);
+        }
+        for (int i = 0; i < Cell_num; ++i)
+        {
+            for (int j = 0; j < Cell_num; ++j)
+            {
+            	NS_LOG_LOGIC("array ["<<i<<"]"<<"["<<j<<"]= "<< array[i][j]);
+            }
+        }
+        ///////////////////////////
+//        array [0][1]=cioList[0];
+//        array [1][0]=-1*cioList[0];
+//        array [1][2]=cioList[1];
+//        array [2][1]=-1*cioList[1];
+//        NS_LOG_LOGIC("array [0][1]= "<< array [0][1]);
+//        NS_LOG_LOGIC("array [1][0]= "<< array [1][0]);
+//        NS_LOG_LOGIC("array [1][2]= "<< array [1][2]);
+//        NS_LOG_LOGIC("array [2][1]= "<< array [2][1]);
+
         switch (reportConfigEutra.triggerQuantity)
           {
           case LteRrcSap::ReportConfigEutra::RSRP:
@@ -2134,6 +2201,7 @@ LteUeRrc::MeasurementReportTriggering (uint8_t measId)
             bool hasTriggered = isMeasIdInReportList
               && (measReportIt->second.cellsTriggeredList.find (cellId)
                   != measReportIt->second.cellsTriggeredList.end ());
+          ocp = array[m_cellId - 1][cellId - 1];
 
             // Inequality A3-1 (Entering condition): Mn + Ofn + Ocn - Hys > Mp + Ofp + Ocp + Off
             bool entryCond = mn + ofn + ocn - hys > mp + ofp + ocp + off;

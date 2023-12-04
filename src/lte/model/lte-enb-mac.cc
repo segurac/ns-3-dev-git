@@ -342,7 +342,7 @@ LteEnbMac::GetTypeId (void)
     .AddConstructor<LteEnbMac> ()
     .AddAttribute ("NumberOfRaPreambles",
                    "how many random access preambles are available for the contention based RACH process",
-                   UintegerValue (52),
+                   UintegerValue (40),
                    MakeUintegerAccessor (&LteEnbMac::m_numberOfRaPreambles),
                    MakeUintegerChecker<uint8_t> (4, 64))
     .AddAttribute ("PreambleTransMax",
@@ -960,6 +960,7 @@ LteEnbMac::DoUeUpdateConfigurationReq (LteEnbCmacSapProvider::UeConfig params)
   FfMacCschedSapProvider::CschedUeConfigReqParameters req;
   req.m_rnti = params.m_rnti;
   req.m_transmissionMode = params.m_transmissionMode;
+  //std::cout<<"  rnti "<<req.m_rnti<<"   Tx Mode  " <<req.m_transmissionMode<<std::endl;
   req.m_reconfigureFlag = true;
   m_cschedSapProvider->CschedUeConfigReq (req);
 }

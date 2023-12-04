@@ -162,6 +162,7 @@ void
 RrFfMacScheduler::DoCschedUeConfigReq (const struct FfMacCschedSapProvider::CschedUeConfigReqParameters& params)
 {
   NS_LOG_FUNCTION (this << " RNTI " << params.m_rnti << " txMode " << (uint16_t)params.m_transmissionMode);
+  //std::cout<< " RNTI " << params.m_rnti << " txMode " << (uint16_t)params.m_transmissionMode<<std::endl;
   std::map <uint16_t,uint8_t>::iterator it = m_uesTxMode.find (params.m_rnti);
   if (it == m_uesTxMode.end ())
     {
@@ -1099,9 +1100,15 @@ RrFfMacScheduler::DoSchedDlCqiInfoReq (const struct FfMacSchedSapProvider::Sched
 {
   NS_LOG_FUNCTION (this);
 
+  cqi_list.clear();                                            //clear map every time(mariam)
+  std::map <uint16_t,uint8_t>::iterator my_it;     //Global map for rnti-cqi(Mariam)
+  my_it = cqi_list.begin();                               //iterator for map(Mariam)
+  
+  
   std::map <uint16_t,uint8_t>::iterator it;
   for (unsigned int i = 0; i < params.m_cqiList.size (); i++)
     {
+	
       if ( params.m_cqiList.at (i).m_cqiType == CqiListElement_s::P10 )
         {
           NS_LOG_LOGIC ("wideband CQI " <<  (uint32_t) params.m_cqiList.at (i).m_wbCqi.at (0) << " reported");
@@ -1124,6 +1131,9 @@ RrFfMacScheduler::DoSchedDlCqiInfoReq (const struct FfMacSchedSapProvider::Sched
               itTimers = m_p10CqiTimers.find (rnti);
               (*itTimers).second = m_cqiTimersThreshold;
             }
+		 cqi_list.insert({rnti,params.m_cqiList.at (i).m_wbCqi.at (0)});      //Insert rnti-cqi pairs(Mariam)
+		//my_it cqi_list.insert(std::pair<uint16_t, uint8_t > (rnti, params.m_cqiList.at (i).m_wbCqi.at (0)) );
+		my_it++;                                              //increment(Mariam)
         }
       else if ( params.m_cqiList.at (i).m_cqiType == CqiListElement_s::A30 )
         {
@@ -1338,7 +1348,7 @@ RrFfMacScheduler::DoSchedUlTriggerReq (const struct FfMacSchedSapProvider::Sched
             {
               uldci.m_rbStart = rbAllocated;
 
-              for (uint16_t j = rbAllocated; j < rbAllocated + rbPerFlow; j++)
+              for (uint16_t j = rbAllocated; j < rbAllocated + rbPerFlow  ; j++)
                 {
                   rbMap.at (j) = true;
                   // store info on allocation for managing ul-cqi interpretation
@@ -1386,7 +1396,7 @@ RrFfMacScheduler::DoSchedUlTriggerReq (const struct FfMacSchedSapProvider::Sched
           // take the lowest CQI value (worst RB)
     	  NS_ABORT_MSG_IF ((*itCqi).second.size() == 0, "CQI of RNTI = " << (*it).first << " has expired");
           double minSinr = (*itCqi).second.at (uldci.m_rbStart);
-          for (uint16_t i = uldci.m_rbStart; i < uldci.m_rbStart + uldci.m_rbLen; i++)
+          for (uint16_t i = uldci.m_rbStart; i < uldci.m_rbStart + uldci.m_rbLen ; i++)
             {
               if ((*itCqi).second.at (i) < minSinr)
                 {
@@ -1504,7 +1514,7 @@ RrFfMacScheduler::DoSchedUlMacCtrlInfoReq (const struct FfMacSchedSapProvider::S
 
   std::map <uint16_t,uint32_t>::iterator it;
 
-  for (unsigned int i = 0; i < params.m_macCeList.size (); i++)
+  for (unsigned int i = 0; i < params.m_macCeList.size () ; i++)
     {
       if ( params.m_macCeList.at (i).m_macCeType == MacCeListElement_s::BSR )
         {
@@ -1824,15 +1834,45 @@ RrFfMacScheduler::UpdateUlRlcBufferInfo (uint16_t rnti, uint16_t size)
 
 }
 
-
+//Scheduler is edited here
 void
 RrFfMacScheduler::TransmissionModeConfigurationUpdate (uint16_t rnti, uint8_t txMode)
 {
-  NS_LOG_FUNCTION (this << " RNTI " << rnti << " txMode " << (uint16_t)txMode);
+	std::map <uint16_t,uint8_t>::iterator my_it;
+	my_it = cqi_list.find (rnti);
+	int cqi=my_it->second;
+	//std::cout<<" RNTI "<< rnti << " cqi in scheduler" << cqi<< std::endl;
+	if(txMode == 0)
+	{
+  NS_LOG_FUNCTION (this << " RNTI " << rnti << " txMode " << 0);
   FfMacCschedSapUser::CschedUeConfigUpdateIndParameters params;
   params.m_rnti = rnti;
-  params.m_transmissionMode = txMode;
+  params.m_transmissionMode = 0;
   m_cschedSapUser->CschedUeConfigUpdateInd (params);
+  //std::cout<<" RNTI "<< params.m_rnti << " mode in scheduler" <<(uint16_t) params.m_transmissionMode<< std::endl;
+	}
+	else if(txMode == 1)
+	{
+		int thr=6;
+		FfMacCschedSapUser::CschedUeConfigUpdateIndParameters params;
+		if( cqi >= thr )			//cqi check (if cqi> thr => mode 2, if cqi<thr => mode 1)   ====>simple scheduler 
+		{
+			NS_LOG_FUNCTION (this << " RNTI " << rnti << " txMode " << 2);
+			params.m_rnti = rnti;
+			params.m_transmissionMode = 2;
+			m_cschedSapUser->CschedUeConfigUpdateInd (params);
+			//std::cout<<" RNTI "<< params.m_rnti << " mode in scheduler" <<(uint16_t) params.m_transmissionMode<< std::endl;
+		}
+		else
+		{
+			NS_LOG_FUNCTION (this << " RNTI " << rnti << " txMode " << 1);
+			params.m_rnti = rnti;
+			params.m_transmissionMode = 1;
+			m_cschedSapUser->CschedUeConfigUpdateInd (params);
+			//std::cout<<" RNTI "<< params.m_rnti << " mode in scheduler" <<(uint16_t) params.m_transmissionMode<< std::endl;
+		}
+	}
+	
 }
 
 

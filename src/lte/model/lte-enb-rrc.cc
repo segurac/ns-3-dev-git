@@ -277,13 +277,16 @@ UeManager::DoInitialize ()
   LteEnbCmacSapProvider::UeConfig req;
   req.m_rnti = m_rnti;
   req.m_transmissionMode = m_physicalConfigDedicated.antennaInfo.transmissionMode;
+  //std::cout<<"  rnti "<<req.m_rnti<<"   Tx Mode  " <<req.m_transmissionMode<<std::endl;
 
   // configure PHY
+  //std::cout<<"carriers  "<< m_rrc->m_numberOfComponentCarriers<<std::endl;
   for (uint16_t i = 0; i < m_rrc->m_numberOfComponentCarriers; i++)
     {
       m_rrc->m_cmacSapProvider.at (i)->UeUpdateConfigurationReq (req);
       m_rrc->m_cphySapProvider.at (i)->SetTransmissionMode (m_rnti, m_physicalConfigDedicated.antennaInfo.transmissionMode);
       m_rrc->m_cphySapProvider.at (i)->SetSrsConfigurationIndex (m_rnti, m_physicalConfigDedicated.soundingRsUlConfigDedicated.srsConfigIndex);
+	  //std::cout<<"  rnti "<<m_rnti<<"   Tx Mode  " <<m_physicalConfigDedicated.antennaInfo.transmissionMode<<std::endl;
     }
   // schedule this UeManager instance to be deleted if the UE does not give any sign of life within a reasonable time
   Time maxConnectionDelay;
@@ -872,6 +875,11 @@ UeManager::SendUeContextRelease ()
       m_rrc->m_x2SapProvider->SendUeContextRelease (ueCtxReleaseParams);
       SwitchToState (CONNECTED_NORMALLY);
       m_rrc->m_handoverEndOkTrace (m_imsi, m_rrc->ComponentCarrierToCellId (m_componentCarrierId), m_rnti);
+	  //New
+	  m_rrc->m_NumberofUesChanged (m_sourceCellId,m_rrc->ComponentCarrierToCellId (m_componentCarrierId),m_rrc->GetUeCount(m_rrc->ComponentCarrierToCellId (m_componentCarrierId)));
+      NS_LOG_LOGIC ("m_NumberofUesChanged");
+      NS_LOG_LOGIC ("m_sourceCellId: "<<m_sourceCellId);
+      NS_LOG_LOGIC ("m_targetCellId: "<<m_rrc->ComponentCarrierToCellId (m_componentCarrierId)<<" Ues Count: "<<m_rrc->GetUeCount(m_rrc->ComponentCarrierToCellId (m_componentCarrierId)));
       break;
 
     default:
@@ -1210,12 +1218,19 @@ UeManager::CmacUeConfigUpdateInd (LteEnbCmacSapUser::UeConfig cmacParams)
   NS_LOG_FUNCTION (this << m_rnti);
   // at this stage used only by the scheduler for updating txMode
 
+//std::cout<<"step 1"<<std::endl;
   m_physicalConfigDedicated.antennaInfo.transmissionMode = cmacParams.m_transmissionMode;
-
+  
+  //std::cout<<"Mode in lte enb rrc "<<  (uint16_t)m_physicalConfigDedicated.antennaInfo.transmissionMode<<std::endl;
+  
+  //std::cout<<"step 2"<<std::endl;
   m_needPhyMacConfiguration = true;
 
+//std::cout<<"step 3"<<std::endl;
   // reconfigure the UE RRC
   ScheduleRrcConnectionReconfiguration ();
+  //std::cout<<"End"<<std::endl;
+
 }
 
 
@@ -1831,6 +1846,10 @@ LteEnbRrc::GetTypeId (void)
                      "trace fired upon successful termination of a handover procedure",
                      MakeTraceSourceAccessor (&LteEnbRrc::m_handoverEndOkTrace),
                      "ns3::LteEnbRrc::ConnectionHandoverTracedCallback")
+	.AddTraceSource ("NumberofUesChanged",
+					 "trace fired upon changing the numver of users in some eNodeB",//added to calculate number of users
+					 MakeTraceSourceAccessor (&LteEnbRrc::m_NumberofUesChanged),
+					 "ns3::LteEnbRrc::ConnectionHandoverTracedCallback")
     .AddTraceSource ("RecvMeasurementReport",
                      "trace fired when measurement report is received",
                      MakeTraceSourceAccessor (&LteEnbRrc::m_recvMeasurementReportTrace),
@@ -2081,6 +2100,17 @@ LteEnbRrc::GetUeManager (uint16_t rnti)
   NS_ASSERT_MSG (it != m_ueMap.end (), "UE manager for RNTI " << rnti << " not found");
   return it->second;
 }
+
+//New
+uint16_t
+LteEnbRrc::GetUeCount (uint16_t cellId)
+{
+  NS_LOG_FUNCTION (this << (uint16_t) cellId);
+  //std::cout<<"m_ueMap size"<<m_ueMap.size()<<std::endl;
+  uint16_t usernum= m_ueMap.size();
+  return usernum;
+}
+
 
 uint8_t
 LteEnbRrc::AddUeMeasReportConfig (LteRrcSap::ReportConfigEutra config)
