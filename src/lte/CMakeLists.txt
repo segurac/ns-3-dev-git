@@ -146,6 +146,7 @@ set(source_files
     model/tdmt-ff-mac-scheduler.cc
     model/tdtbfq-ff-mac-scheduler.cc
     model/tta-ff-mac-scheduler.cc
+    model/cell-individual-offset.cc
 )
 
 set(header_files
@@ -277,6 +278,7 @@ set(header_files
     model/tdmt-ff-mac-scheduler.h
     model/tdtbfq-ff-mac-scheduler.h
     model/tta-ff-mac-scheduler.h
+    model/cell-individual-offset.h
 )
 
 set(test_sources
@@ -341,6 +343,7 @@ set(test_sources
     test/test-lte-rrc.cc
     test/test-lte-x2-handover-measures.cc
     test/test-lte-x2-handover.cc
+    model/cell-individual-offset.cc
 )
 
 build_lib(
