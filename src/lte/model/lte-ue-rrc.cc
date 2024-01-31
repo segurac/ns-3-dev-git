@@ -2156,24 +2156,12 @@ LteUeRrc::MeasurementReportTriggering(uint8_t measId)
             EutranMeasurementMapping::IeValue2ActualHysteresis(reportConfigEutra.hysteresis);
 
         std::vector<double> cioList = CellIndividualOffset::getOffsetList(); // Edit this out to remove CIO capabilities
-        //cioList ={6.558788, 7.833873, -8.363283, 7.056366, 7.500414, -7.847822, -6.923728, -8.015309, -8.247333, -8.169519, -8.169519};
-        /* int const Cell_num=6;
-        int HO_possible [Cell_num][Cell_num] =
-        {
-        {0,1,0,1,0,1},
-        {1,0,1,1,1,1},
-        {0,1,0,0,1,1},
-        {1,1,0,0,1,0},
-        {0,1,1,1,0,1},
-        {1,1,1,0,1,0}
-        }; */
-        int const Cell_num=3;
-        int HO_possible [Cell_num][Cell_num] =
-        {
-        {0,1,0},
-        {1,0,1},
-        {0,1,0}
-        };
+        
+        int Cell_num = CellIndividualOffset::getCellNum();
+        int** HO_possible = CellIndividualOffset::getAdjacencyMatrix();
+
+        
+
         int index=0;
         double array [Cell_num][Cell_num] ={0.0};
         for (int i=0; i<Cell_num;i++)
@@ -2184,7 +2172,6 @@ LteUeRrc::MeasurementReportTriggering(uint8_t measId)
                 {
                     array[i][j]=-1*cioList[index];
                     array[j][i]=cioList[index];
-
                     index++;
                 }
             }
