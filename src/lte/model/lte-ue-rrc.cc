@@ -2158,7 +2158,7 @@ LteUeRrc::MeasurementReportTriggering(uint8_t measId)
         std::vector<double> cioList = CellIndividualOffset::getOffsetList(); // Edit this out to remove CIO capabilities
         
         int Cell_num = CellIndividualOffset::getCellNum();
-        int** HO_possible = CellIndividualOffset::getAdjacencyMatrix();
+	std::vector< std::vector<int> > HO_possible = CellIndividualOffset::getAdjacencyMatrix();
 
         
 

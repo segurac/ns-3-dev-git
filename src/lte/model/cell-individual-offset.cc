@@ -1,9 +1,12 @@
 #include "cell-individual-offset.h"
 
+namespace ns3
+{
+
 
 std::vector<double> CellIndividualOffset::OffsetList(40,0);
 int CellIndividualOffset::CellNum(1);
-int** CellIndividualOffset::AdjacencyMatrix = nullptr;
+std::vector<std::vector<int>> CellIndividualOffset::AdjacencyMatrix;
 
 void CellIndividualOffset::setOffsetList(std::vector<double>& CioList)
 {
@@ -16,18 +19,13 @@ std::vector<double> CellIndividualOffset::getOffsetList()
 		return OffsetList;
 }
 
-void CellIndividualOffset::setAdjacencyMatrix(int** AdjacencyMatrixToCopy)
+void CellIndividualOffset::setAdjacencyMatrix(std::vector< std::vector<int>  >& AdjacencyMatrixToCopy)
 {
-		AdjacencyMatrix = new int*[CellNum];
-		for (int i=0; i<CellNum; i++){
-			AdjacencyMatrix[i] = new int[CellNum];
-			for (int j=0; j<CellNum; j++){
-				AdjacencyMatrix[i][j] = AdjacencyMatrixToCopy[i][j];
-			}
-		}
+	AdjacencyMatrix = AdjacencyMatrixToCopy; //this does deep copy and memory management
+						 //We should add here an assert on the size to be [CellNum][CellNum]
 }
 
-int** CellIndividualOffset::getAdjacencyMatrix(){
+std::vector< std::vector<int>  > CellIndividualOffset::getAdjacencyMatrix(){
 	return AdjacencyMatrix;
 }
 
@@ -38,3 +36,5 @@ void CellIndividualOffset::setCellNum(int Num){
 int CellIndividualOffset::getCellNum(){
 	return CellNum;
 }
+
+} //namespace ns3

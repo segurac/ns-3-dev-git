@@ -3,11 +3,15 @@
 
 #include <vector>
 
+namespace ns3
+{
+
+
 class CellIndividualOffset
 {
 	
 	static std::vector<double> OffsetList;
-	static int** AdjacencyMatrix;
+	static std::vector< std::vector<int>  > AdjacencyMatrix;
 	static int CellNum;
 
 	public:	
@@ -17,10 +21,11 @@ class CellIndividualOffset
 		static void setOffsetList(std::vector<double>& CioList);
 		static std::vector<double> getOffsetList();
 
-		static void setAdjacencyMatrix(int** AdjacencyMatrix);
-		static int** getAdjacencyMatrix();
+		static void setAdjacencyMatrix(std::vector< std::vector<int>  >&  AdjacencyMatrix);
+		static std::vector< std::vector<int>  > getAdjacencyMatrix();
 
 
 };
 
+} //namespace ns3
 #endif
