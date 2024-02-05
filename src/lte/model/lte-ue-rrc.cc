@@ -2152,43 +2152,11 @@ LteUeRrc::MeasurementReportTriggering(uint8_t measId)
         // Off, the offset parameter for this event.
         double off = EutranMeasurementMapping::IeValue2ActualA3Offset(reportConfigEutra.a3Offset);
         // Hys, the hysteresis parameter for this event.
-        double hys =
-            EutranMeasurementMapping::IeValue2ActualHysteresis(reportConfigEutra.hysteresis);
+        double hys = (CellIndividualOffset::getHysteresis())[m_cellId-1];
+            // EutranMeasurementMapping::IeValue2ActualHysteresis(reportConfigEutra.hysteresis);
 
-        std::vector<double> cioList = CellIndividualOffset::getOffsetList(); // Edit this out to remove CIO capabilities
-        
-        int Cell_num = CellIndividualOffset::getCellNum();
-	std::vector< std::vector<int> > HO_possible = CellIndividualOffset::getAdjacencyMatrix();
+        reportConfigEutra.timeToTrigger = (CellIndividualOffset::getTimeToTrigger())[m_cellId-1];
 
-        
-
-        int index=0;
-        double array [Cell_num][Cell_num] ={0.0};
-        for (int i=0; i<Cell_num;i++)
-        {
-            for (int j=0; j<i;j++)
-            {
-                if (HO_possible[i][j]==1)
-                {
-                    array[i][j]=-1*cioList[index];
-                    array[j][i]=cioList[index];
-                    index++;
-                }
-            }
-        }
-        NS_LOG_LOGIC("index "<< index);
-        ////////////////////////////////////
-        for (int j = 0; j < Cell_num*Cell_num; ++j)
-        {
-            NS_LOG_LOGIC("cioList ["<<j<<"]"<< cioList[j]);
-        }
-        for (int i = 0; i < Cell_num; ++i)
-        {
-            for (int j = 0; j < Cell_num; ++j)
-            {
-                NS_LOG_LOGIC("array ["<<i<<"]"<<"["<<j<<"]= "<< array[i][j]);
-            }
-        }
 
         switch (reportConfigEutra.triggerQuantity)
         {
@@ -2241,7 +2209,8 @@ LteUeRrc::MeasurementReportTriggering(uint8_t measId)
                 isMeasIdInReportList && (measReportIt->second.cellsTriggeredList.find(cellId) !=
                                          measReportIt->second.cellsTriggeredList.end());
             
-            ocp = array[m_cellId - 1][cellId - 1];
+            std::vector< std::vector<double>> cioOffsetMatrix = CellIndividualOffset::getOffsetMatrix();
+            ocp = cioOffsetMatrix[m_cellId - 1][cellId - 1];
 
             // Inequality A3-1 (Entering condition): Mn + Ofn + Ocn - Hys > Mp + Ofp + Ocp + Off
             bool entryCond = mn + ofn + ocn - hys > mp + ofp + ocp + off;
