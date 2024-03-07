@@ -2211,9 +2211,13 @@ LteUeRrc::MeasurementReportTriggering(uint8_t measId)
             
             std::vector< std::vector<double>> cioOffsetMatrix = CellIndividualOffset::getOffsetMatrix();
             ocp = cioOffsetMatrix[m_cellId - 1][cellId - 1];
+            //std::cout << "EVENT_A3" << std::endl;
+            //std::cout << "RNTI: " << m_rnti << ", CELL INI: " << m_cellId << ", CELL FIN: " << cellId << std::endl;
+            //std::cout << "mp: " << mp << ", mn: " << mn << ", off: " << off << ", ofn: " << ofn << ", ocp: " << ocp << ", ocn: " << ocn << ", hys: " << hys << std::endl;
 
             // Inequality A3-1 (Entering condition): Mn + Ofn + Ocn - Hys > Mp + Ofp + Ocp + Off
             bool entryCond = mn + ofn + ocn - hys > mp + ofp + ocp + off;
+            //std::cout << "ENTRY CONDITION: " << entryCond << std::endl;
 
             if (entryCond)
             {
@@ -2230,6 +2234,7 @@ LteUeRrc::MeasurementReportTriggering(uint8_t measId)
 
             // Inequality A3-2 (Leaving condition): Mn + Ofn + Ocn + Hys < Mp + Ofp + Ocp + Off
             bool leavingCond = mn + ofn + ocn + hys < mp + ofp + ocp + off;
+            //std::cout << "LEAVING CONDITION: " << leavingCond << std::endl;
 
             if (leavingCond)
             {
